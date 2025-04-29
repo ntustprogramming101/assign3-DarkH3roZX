@@ -1,6 +1,6 @@
 // Player Class: Represents the player in the game
 class Player {
-  float x, y, w = 30, h = 60, xSpeed = 5, ySpeed = 0, gravity = 0.4; // Position, size, speed, and physics
+  float x, y, w = 30, h = 60, xSpeed = 5, ySpeed = 0, gravity = 0.3; // Position, size, speed, and physics
   int health = PLAYER_HEALTH; // Player's health
   int moveDir = 0; // Movement direction, 0=idle, 1=right, -1=left
   int spriteIndex = 0; // sprite index: 0=idle, 1=left, 2=right
@@ -32,21 +32,30 @@ class Player {
 
   // Stage 2-2: Check for collisions with platforms
   void handlePlatformCollision() {
-   
-
+    for (int i = 0; i < NUM_PLATFORMS; i++) {
+      if (AABB(x, y + feetOffset, w, h, platforms[i].x, platforms[i].y, platforms[i].w, platforms[i].h)) {
+        y = platforms[i].y + feetOffset - h;
+        ySpeed = 0;
+      }
+    }
   }
   // End of stage 2-2
 
   boolean AABB(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) {
     // Axis-Aligned Bounding Box (AABB) collision detection
-    return (ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by);
+    return (ax < bx + bw && ax + aw > bx && ay + ah < by + bh && ay + ah > by);
   }
 
   // Stage 2-3: handle ceiling and bottom collisions
   void handleCeilingBottomCollision() {
     // When the player collides with the ceiling or bottom of the screen:
     // keep the player at the top and subtract health by 1
-   
+    if (y < 0 || y > height - h) {
+      y = 0;
+      ySpeed = 0;
+      health--;
+      damaged = true;
+    }
 
     // Stage 3-2: 
     // This block checks if the player is not invincible and not already in a damaged state:
@@ -55,6 +64,8 @@ class Player {
     //   DAMAGE_BLINK_DURATION. This ensures the player enters a temporary "damaged" state
     //   with visual feedback (e.g., blinking effect) and avoids taking consecutive damage
     //   immediately.
+    if (!damaged && !invincible) {
+    }
     
     // End of stage 3-2
   }

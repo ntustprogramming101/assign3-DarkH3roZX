@@ -35,7 +35,7 @@ void setup() {
 
 void loadAssets() {
   bg = loadImage("background.png");
-  bg.resize(width, height); // Resize the background image to fit the screen
+  bg.resize(width, height); // Resize athe background image to fit the screen
   bgY2 = -height; // Second background image starts off-screen
   platformImage = loadImage("cloud.png");
   winImage = loadImage("win_image.png"); // Load the win image
@@ -69,7 +69,7 @@ void initializePlatforms() {
   // stage 1-1: generate 10 platforms with random positions on the screen
   for (int i = 0; i < NUM_PLATFORMS; i++) {
     // you need to change this line to create a new platform object with random horizontal positions, while distributed evenly in vertical space
-    platforms[i] = new Platform(0,0); 
+    platforms[i] = new Platform(random(80, width - 80), (i + 7) * (height / 10));
   }
   // End of stage 1-1
 }
@@ -194,10 +194,10 @@ void displayWinMessage() {
 void keyPressed() {
   if (key == 'a' || key == 'A') {
     // Move left, call player.setMovement() to set the moveDir
-
+    player.setMovement(-1);
   } else if (key == 'd' || key == 'D') {
     // Move right, call player.setMovement() to set the moveDir
-
+    player.setMovement(1);
   } else if (key == 'r' || key == 'R') {
     restartGame();
   }
@@ -206,7 +206,7 @@ void keyPressed() {
 void keyReleased() {
   if (key == 'a' || key == 'A' || key == 'd' || key == 'D') {
     // Stop moving, call player.setMovement() to set the moveDir
-
+    player.setMovement(0);
   }
 } 
 // End of stage 2-1

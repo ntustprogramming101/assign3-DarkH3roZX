@@ -11,6 +11,12 @@ class Platform {
 
   void update() {
     // Stage 1-2: Move the platform up and reset its position when it goes out of view
+    y -= speed;
+    
+    if (y <= 0) {
+      x = random(random(80, width - 80));
+      y = height;
+    }
   
     // End of stage 1-2
   }
