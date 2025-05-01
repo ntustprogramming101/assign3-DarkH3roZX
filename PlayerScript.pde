@@ -5,7 +5,7 @@ class Player {
   int moveDir = 0; // Movement direction, 0=idle, 1=right, -1=left
   int spriteIndex = 0; // sprite index: 0=idle, 1=left, 2=right
   int animatedFrameIndex = 0; // animated frame index for the sprite
-  boolean invincible = true, damaged = false; // Flags for invincibility and damage states
+  boolean invincible = false, damaged = false; // Flags for invincibility and damage states
   int invincibilityTimer = INVINCIBILITY_DURATION, damageTimer = 0; // Timers for invincibility and damage
   float feetOffset = 5; // Offset for feet collision detection
 
@@ -32,10 +32,12 @@ class Player {
 
   // Stage 2-2: Check for collisions with platforms
   void handlePlatformCollision() {
-    for (int i = 0; i < NUM_PLATFORMS; i++) {
-      if (AABB(x, y + feetOffset, w, h, platforms[i].x, platforms[i].y, platforms[i].w, platforms[i].h)) {
-        y = platforms[i].y + feetOffset - h;
-        ySpeed = 0;
+    if (!invincible) {
+      for (int i = 0; i < NUM_PLATFORMS; i++) {
+        if (AABB(x, y + feetOffset, w, h, platforms[i].x, platforms[i].y, platforms[i].w, platforms[i].h)) {
+          y = platforms[i].y + feetOffset - h;
+          ySpeed = 0;
+        }
       }
     }
   }
@@ -50,21 +52,29 @@ class Player {
   void handleCeilingBottomCollision() {
     // When the player collides with the ceiling or bottom of the screen:
     // keep the player at the top and subtract health by 1
-    if (y < 0 || y > height - h) {
+    if (y > height - h) {
+        health = 0;
+        return;
+    }
+    else if (y < 0) {
       y = 0;
       ySpeed = 0;
       health--;
-      damaged = true;
-    }
 
-    // Stage 3-2: 
-    // This block checks if the player is not invincible and not already in a damaged state:
-    // - If both conditions are true, the player's health is reduced by 1.
-    // - The player is then marked as damaged, and the damage timer is set to the predefined
-    //   DAMAGE_BLINK_DURATION. This ensures the player enters a temporary "damaged" state
-    //   with visual feedback (e.g., blinking effect) and avoids taking consecutive damage
-    //   immediately.
-    if (!damaged && !invincible) {
+      // Stage 3-2: 
+      // This block checks if the player is not invincible and not already in a damaged state:
+      // - If both conditions are true, the player's health is reduced by 1.
+      // - The player is then marked as damaged, and the damage timer is set to the predefined
+      //   DAMAGE_BLINK_DURATION. This ensures the player enters a temporary "damaged" state
+      //   with visual feedback (e.g., blinking effect) and avoids taking consecutive damage
+      //   immediately.
+      if (!damaged && !invincible) {
+        damaged = true;
+        invincible = true;
+        
+        invincibilityTimer = INVINCIBILITY_DURATION;
+        damageTimer = DAMAGE_BLINK_DURATION;
+      }
     }
     
     // End of stage 3-2
@@ -80,14 +90,32 @@ class Player {
     //   Once the timer reaches 0, the damaged state is cleared.
     // These timers ensure that the player has temporary protection after taking damage
     // and provides visual feedback (e.g., blinking effect) during these states.
-
+    if (invincible) {
+      invincibilityTimer -= 6;
+    }
+    
+    if (damaged) {
+      damageTimer--;
+    }
+    
+    if (invincibilityTimer <= 0) {
+      invincible = false;
+    }
+    
+    if (damageTimer <= 0) {
+      damaged = false;
+    }
   }
   // End of stage 3-1
 
   // Stage 3-3: Cycle through animation frames based on timer
   void updateAnimation() {
-    
-    
+    if (moveDir != 0) {
+      animatedFrameIndex = (frameCounter / 5) % 2;
+    }
+    else {
+      animatedFrameIndex = 0;
+    }
   }
   // End of stage 3-3
 
